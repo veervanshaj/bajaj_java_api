@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/bfhl")
 @CrossOrigin(origins = "*")
 public class BfhlController {
 
@@ -22,14 +21,19 @@ public class BfhlController {
         this.bfhlService = bfhlService;
     }
 
-    @PostMapping
+    @PostMapping("/bfhl")
     public ResponseEntity<BfhlResponseDto> processData(@RequestBody BfhlRequestDto request) {
         BfhlResponseDto response = bfhlService.processRequest(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/bfhl")
     public ResponseEntity<Map<String, Object>> getOperationCode() {
         return ResponseEntity.ok(Collections.singletonMap("operation_code", 1));
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> getHealth() {
+        return ResponseEntity.ok(Collections.singletonMap("status", "UP"));
     }
 }

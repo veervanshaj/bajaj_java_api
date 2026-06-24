@@ -4,6 +4,7 @@ import com.bfhl.api.dto.BfhlRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -27,11 +28,34 @@ public class BfhlControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${bfhl.user.name:john_doe}")
+    private String expectedName;
+
+    @Value("${bfhl.user.dob:17091999}")
+    private String expectedDob;
+
+    @Value("${bfhl.user.email:john@xyz.com}")
+    private String expectedEmail;
+
+    @Value("${bfhl.user.roll-number:ABCD123}")
+    private String expectedRollNumber;
+
+    private String getExpectedUserId() {
+        return (expectedName + "_" + expectedDob).toLowerCase().replaceAll("\\s+", "_");
+    }
+
     @Test
     public void testGetBFHL() throws Exception {
         mockMvc.perform(get("/bfhl"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.operation_code", is(1)));
+    }
+
+    @Test
+    public void testGetHealth() throws Exception {
+        mockMvc.perform(get("/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("UP")));
     }
 
     @Test
@@ -45,9 +69,9 @@ public class BfhlControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.is_success", is(true)))
-                .andExpect(jsonPath("$.user_id", is("john_doe_17091999")))
-                .andExpect(jsonPath("$.email", is("john@xyz.com")))
-                .andExpect(jsonPath("$.roll_number", is("ABCD123")))
+                .andExpect(jsonPath("$.user_id", is(getExpectedUserId())))
+                .andExpect(jsonPath("$.email", is(expectedEmail)))
+                .andExpect(jsonPath("$.roll_number", is(expectedRollNumber)))
                 .andExpect(jsonPath("$.sum", is("339")))
                 .andExpect(jsonPath("$.concat_string", is("Ra")));
     }
